@@ -1,297 +1,334 @@
-# angular-seed — the seed for AngularJS apps
+#Reporting UI
 
-This project is an application skeleton for a typical [AngularJS](http://angularjs.org/) web app.
-You can use it to quickly bootstrap your angular webapp projects and dev environment for these
-projects.
+##Data interaction diagram:
 
-The seed contains a sample AngularJS application and is preconfigured to install the Angular
-framework and a bunch of development and testing tools for instant web development gratification.
+![data interaction diagram](diagram1.jpg)
 
-The seed app doesn't do much, just shows how to wire two controllers and views together.
+*Solid lines represent external data; Dashed lines represent user input*
 
 
-## Getting Started
+##Server JSON API definitions
 
-To get you started you can simply clone the angular-seed repository and install the dependencies:
 
-### Prerequisites
 
-You need git to clone the angular-seed repository. You can get git from
-[http://git-scm.com/](http://git-scm.com/).
+###Base URL:
 
-We also use a number of node.js tools to initialize and test angular-seed. You must have node.js and
-its package manager (npm) installed.  You can get them from [http://nodejs.org/](http://nodejs.org/).
+It would be nice to have live and historic data come from different subdomains. 
+This will allow to get the live data straight from the data warehouse saving on ETLs. 
 
-### Clone angular-seed
+`historic.reports.domain.tld` - Historic data
+`live.reports.domain.tld` - Historic data
 
-Clone the angular-seed repository using [git][git]:
+###GET /report
 
-```
-git clone https://github.com/angular/angular-seed.git
-cd angular-seed
-```
+List available reports
 
-If you just want to start a new project without the angular-seed commit history then you can do:
+| Name | Type | Description |
+|---|---|---|
+| page | int | Page number to get |
+| pageSize | int | Page size. Default: 50 |
+| filter | string | List filter string |
+| ordering | string | List ordering column and optional order direction (`title  DESC`)|
 
-```bash
-git clone --depth=1 https://github.com/angular/angular-seed.git <your-project-name>
-```
+####Response
 
-The `depth=1` tells git to only pull down one commit worth of historical data.
-
-### Install Dependencies
-
-We have two kinds of dependencies in this project: tools and angular framework code.  The tools help
-us manage and test the application.
-
-* We get the tools we depend upon via `npm`, the [node package manager][npm].
-* We get the angular code via `bower`, a [client-side code package manager][bower].
-
-We have preconfigured `npm` to automatically run `bower` so we can simply do:
-
-```
-npm install
+```JavaScript
+{
+	totalCount: 200,
+	page: 1,
+	pageSize: 50,
+	data: [IReportEntry]
+}
 ```
 
-Behind the scenes this will also call `bower install`.  You should find that you have two new
-folders in your project.
+###GET /report/{id}
 
-* `node_modules` - contains the npm packages for the tools we need
-* `app/bower_components` - contains the angular framework files
+Get specified report meta by report ID.
 
-*Note that the `bower_components` folder would normally be installed in the root folder but
-angular-seed changes this location through the `.bowerrc` file.  Putting it in the app folder makes
-it easier to serve the files by a webserver.*
+####Response
 
-### Run the Application
+[IReportMeta](#report-meta)
 
-We have preconfigured the project with a simple development web server.  The simplest way to start
-this server is:
+###POST /report/{id}
 
-```
-npm start
-```
+####POST body
 
-Now browse to the app at `http://localhost:8000/app/index.html`.
+[IReportOptions](#report-options)
+
+####Response
+
+`IReportData`
 
 
+##Models
+###Reports list
+####IReportEntry
 
-## Directory Layout
-
-```
-app/                    --> all of the source files for the application
-  app.css               --> default stylesheet
-  components/           --> all app specific modules
-    version/              --> version related components
-      version.js                 --> version module declaration and basic "version" value service
-      version_test.js            --> "version" value service tests
-      version-directive.js       --> custom directive that returns the current app version
-      version-directive_test.js  --> version directive tests
-      interpolate-filter.js      --> custom interpolation filter
-      interpolate-filter_test.js --> interpolate filter tests
-  view1/                --> the view1 view template and logic
-    view1.html            --> the partial template
-    view1.js              --> the controller logic
-    view1_test.js         --> tests of the controller
-  view2/                --> the view2 view template and logic
-    view2.html            --> the partial template
-    view2.js              --> the controller logic
-    view2_test.js         --> tests of the controller
-  app.js                --> main application module
-  index.html            --> app layout file (the main html template file of the app)
-  index-async.html      --> just like index.html, but loads js files asynchronously
-karma.conf.js         --> config file for running unit tests with Karma
-e2e-tests/            --> end-to-end tests
-  protractor-conf.js    --> Protractor config file
-  scenarios.js          --> end-to-end scenarios to be run by Protractor
+```JavaScript
+{
+	id: "8c628630-9aec-11e5-b82d-43de8931f253", // Report id
+	reportNum: 148, // Report number (do we need this?)
+	name: "Changes by category", // Report title in the list
+	category: {
+		id: "35eae4f8-9aee-11e5-8cfe-975723d3ed12" // Category ID
+		name: "Change", // category title 
+		color: "#0f0" // category color 
+	}
+}
 ```
 
-## Testing
+###Report meta
+####RecordType
+* `historical`
+* `live`
 
-There are two kinds of tests in the angular-seed application: Unit tests and End to End tests.
-
-### Running Unit Tests
-
-The angular-seed app comes preconfigured with unit tests. These are written in
-[Jasmine][jasmine], which we run with the [Karma Test Runner][karma]. We provide a Karma
-configuration file to run them.
-
-* the configuration is found at `karma.conf.js`
-* the unit tests are found next to the code they are testing and are named as `..._test.js`.
-
-The easiest way to run the unit tests is to use the supplied npm script:
-
-```
-npm test
-```
-
-This script will start the Karma test runner to execute the unit tests. Moreover, Karma will sit and
-watch the source and test files for changes and then re-run the tests whenever any of them change.
-This is the recommended strategy; if your unit tests are being run every time you save a file then
-you receive instant feedback on any changes that break the expected code functionality.
-
-You can also ask Karma to do a single run of the tests and then exit.  This is useful if you want to
-check that a particular version of the code is operating as expected.  The project contains a
-predefined script to do this:
-
-```
-npm run test-single-run
-```
-
-
-### End to end testing
-
-The angular-seed app comes with end-to-end tests, again written in [Jasmine][jasmine]. These tests
-are run with the [Protractor][protractor] End-to-End test runner.  It uses native events and has
-special features for Angular applications.
-
-* the configuration is found at `e2e-tests/protractor-conf.js`
-* the end-to-end tests are found in `e2e-tests/scenarios.js`
-
-Protractor simulates interaction with our web app and verifies that the application responds
-correctly. Therefore, our web server needs to be serving up the application, so that Protractor
-can interact with it.
-
-```
-npm start
-```
-
-In addition, since Protractor is built upon WebDriver we need to install this.  The angular-seed
-project comes with a predefined script to do this:
-
-```
-npm run update-webdriver
-```
-
-This will download and install the latest version of the stand-alone WebDriver tool.
-
-Once you have ensured that the development web server hosting our application is up and running
-and WebDriver is updated, you can run the end-to-end tests using the supplied npm script:
-
-```
-npm run protractor
-```
-
-This script will execute the end-to-end tests against the application being hosted on the
-development server.
-
-
-## Updating Angular
-
-Previously we recommended that you merge in changes to angular-seed into your own fork of the project.
-Now that the angular framework library code and tools are acquired through package managers (npm and
-bower) you can use these tools instead to update the dependencies.
-
-You can update the tool dependencies by running:
-
-```
-npm update
-```
-
-This will find the latest versions that match the version ranges specified in the `package.json` file.
-
-You can update the Angular dependencies by running:
-
-```
-bower update
-```
-
-This will find the latest versions that match the version ranges specified in the `bower.json` file.
-
-
-## Loading Angular Asynchronously
-
-The angular-seed project supports loading the framework and application scripts asynchronously.  The
-special `index-async.html` is designed to support this style of loading.  For it to work you must
-inject a piece of Angular JavaScript into the HTML page.  The project has a predefined script to help
-do this.
-
-```
-npm run update-index-async
-```
-
-This will copy the contents of the `angular-loader.js` library file into the `index-async.html` page.
-You can run this every time you update the version of Angular that you are using.
-
-
-## Serving the Application Files
-
-While angular is client-side-only technology and it's possible to create angular webapps that
-don't require a backend server at all, we recommend serving the project files using a local
-webserver during development to avoid issues with security restrictions (sandbox) in browsers. The
-sandbox implementation varies between browsers, but quite often prevents things like cookies, xhr,
-etc to function properly when an html page is opened via `file://` scheme instead of `http://`.
-
-
-### Running the App during Development
-
-The angular-seed project comes preconfigured with a local development webserver.  It is a node.js
-tool called [http-server][http-server].  You can start this webserver with `npm start` but you may choose to
-install the tool globally:
-
-```
-sudo npm install -g http-server
+####IReportMeta
+```JavaScript
+{
+	displayLabel: "Changes by category", // Report title 
+	// Report data options
+	dataConfigs: [{
+		name: "filter",  // Name of the config section
+		title: "Filter by", // Title of the config section
+		type: "textfield", // Type of input to use for this config
+		multiple: "And by", // Allow multiple inputs of this config option with title
+		options: [{ // Possible input options
+            value: "name",
+            title: "Category name",
+            live: true
+        },{
+            value: "cnt",
+            title: "Count",
+            live: true
+        }],
+        default: null
+    },{
+        name:  "aggregation",  // Aggregation is the core for data series preparation
+		title: "Group by",
+		type: "select",
+		multiple: false,
+		options: [{ // Each aggregation choice has chart(s) configuration
+            value: "name",
+            title: "Category name",
+            live: true,
+            charts: [{
+                type: "bar",
+                series: {
+                    xAxis: "category_name",
+                    yAxis: "cnt"
+                }
+            },{
+                type: 'pie',
+                series: {
+                    xAxis: "category_name",
+                    yAxis: "cnt"
+                }
+            }]
+        },{
+            value: "day",
+            title: "Change day",
+            live: false,
+            charts: [{
+                type: "line",
+                title: "Line chart",
+                series: {
+                    xAxis: "changeDate",
+                    yAxis: "cnt"
+                }
+            }]
+        },{
+            value: "hour",
+            title: "Change hour",
+            live: false,
+            charts: [...]
+        }],
+        default: 'name'        
+	},{
+		name: "function",
+		title: "Function",
+		type: "select",
+		multiple: false,
+		options: [{
+			value: "count",
+			title: "Count",
+			live: true
+		},{
+			value: "sum",
+			title: "Sum of change values",
+			live: true
+		}],
+		default: "count"
+	},{
+		name: "ordering",
+		title: "Sort by",
+		type: "select",
+		multiple: "and then by",
+		options: [{
+            value: "name",
+            title: "Category name",
+            live: true  
+        },{
+            value: "date",
+            title: "Recent change date",
+            live: true  
+        },{
+            value: "cnt",
+            title: "Count",
+            live: true  
+        }],
+        default: "name"        		
+	}]
+}
 ```
 
-Then you can start your own development web server to serve static files from a folder by
-running:
+###Report data
+####IReportOptions
 
+```JavaScript
+{
+	recordType: "historical",
+	filter: [{
+		type: "count",
+		value: ">38"
+	}],
+	aggregation: "day",
+	function: "count",
+	ordering: ["date", "name"]
+}
 ```
-http-server -a localhost -p 8000
+
+####IReportData
+
+```JavaScript
+{
+	totalRowCount: 2000,
+	returnedCount: 200,
+	series: [{
+		group_title: "Laptop Support",
+		cnt: 39
+	},{
+		group_title: "Mobile Support",
+		cnt: 98
+	},
+	...
+	{
+		group_title: "Other",
+		cnt: 21
+	}]
+}
 ```
 
-Alternatively, you can choose to configure your own webserver, such as apache or nginx. Just
-configure your server to serve the files under the `app/` directory.
 
 
-### Running the App in Production
+##AngularJs UI
+###Services
+####Reports
+List of reports providing infinite scrolling. Keep current page number, go back and forward, keeping configured number of pages in memory and loading next or previous page on demand, removing the excessive data from memory cache.
 
-This really depends on how complex your app is and the overall infrastructure of your system, but
-the general rule is that all you need in production are all the files under the `app/` directory.
-Everything else should be omitted.
+#####Provider configs:
+| Name | Type | Description |
+|---|---|---|
+| pageSize | int | Page size. Default: 50 |
+| keepPages | int | How many pages to keep in memory. Default: 3 |
 
-Angular apps are really just a bunch of static html, css and js files that just need to be hosted
-somewhere they can be accessed by browsers.
-
-If your Angular app is talking to the backend server via xhr or other means, you need to figure
-out what is the best way to host the static files to comply with the same origin policy if
-applicable. Usually this is done by hosting the files by the backend server or through
-reverse-proxying the backend server(s) and webserver(s).
-
-
-## Continuous Integration
-
-### Travis CI
-
-[Travis CI][travis] is a continuous integration service, which can monitor GitHub for new commits
-to your repository and execute scripts such as building the app or running tests. The angular-seed
-project contains a Travis configuration file, `.travis.yml`, which will cause Travis to run your
-tests when you push to GitHub.
-
-You will need to enable the integration between Travis and GitHub. See the Travis website for more
-instruction on how to do this.
-
-### CloudBees
-
-CloudBees have provided a CI/deployment setup:
-
-<a href="https://grandcentral.cloudbees.com/?CB_clickstart=https://raw.github.com/CloudBees-community/angular-js-clickstart/master/clickstart.json">
-<img src="https://d3ko533tu1ozfq.cloudfront.net/clickstart/deployInstantly.png"/></a>
-
-If you run this, you will get a cloned version of this repo to start working on in a private git repo,
-along with a CI service (in Jenkins) hosted that will run unit and end to end tests in both Firefox and Chrome.
+#####Reports.getData
+```Reports.getData(page, ordering, searchTerm)```
 
 
-## Contact
+Loads the specified page of data, optionally filtered by searchTerm, and stores searchTerm for future next/back operations.
+ 
+| Name | Type | Description |
+|---|---|---|
+| page | int | Page number to get |
+| ordering | string | List ordering column and optional order direction (`title  DESC`)|
+| searchTerm | string | Search term to filter the list by on the server |
+| `return` | Promise | Resolved to array of report items (see server-side API for GET /report/{id} for data sample) |
 
-For more information on AngularJS please check out http://angularjs.org/
+#####Reports.getNext
 
-[git]: http://git-scm.com/
-[bower]: http://bower.io
-[npm]: https://www.npmjs.org/
-[node]: http://nodejs.org
-[protractor]: https://github.com/angular/protractor
-[jasmine]: http://jasmine.github.io
-[karma]: http://karma-runner.github.io
-[travis]: https://travis-ci.org/
-[http-server]: https://github.com/nodeapps/http-server
+`Reports.getNext()`
+ 
+Load next (currentPage+1) page of data, removes excessive data from memory cache:
+
+```JavaScript
+if (data.length > pageSize * keepPages) {
+  data.splice(0, data.length -  pageSize * keepPages);
+}
+```
+#####Reports.getPrevious
+
+`Reports.getPrevious()`
+
+Load previous (currentPage-1) page of data, removes excessive data from memory cache:
+
+```JavaScript
+if (data.length > pageSize * keepPages) {
+  data.splice(pageSize * keepPages);
+}
+```
+####Report
+Load report data and metadata.
+
+#####Report.loadMeta
+`Report.loadMeta(reportId)`
+
+Load full meta data for provided report ID.
+
+#####Report.loadData
+`Report.loadData(reportId, config)` 
+
+Load the report raw data with provided report configuration.
+
+| Name | Type | Description |
+|---|---|---|
+| reportId | string | Report ID |
+| config | IReportConfig | Report-specific configuration options such as aggregations, sorting, etc. |
+
+
+##Views
+
+###ReportsList
+
+Renders left panel with recent and all reports lists. 
+
+* Use Reports service to obtain data and provide infinite scrolling capability
+* Use ng-repeat with item html template.
+* Use localstorage service to store a capped LIFO(IReportEntry) of last viewed reports.
+* Update the LIFO upon clicking on a report entry
+* Broadcast clicked report ID to `$rootScope` as `openreport` event
+
+###ReportProperties
+
+Listen to `$rootScope` `openreport` event and get IReportMeta using `Report.loadMeta`
+Render as a tabbed panel containing:
+
+####ChartDataOptions directive
+
+Gets the IReportMeta and renders the report preparation options tab.
+Parse IReportMeta to html template using standart and custom directives for sections and input types then 
+render resulting html with [`bind-html-compile`](https://github.com/incuna/angular-bind-html-compile)
+Bind to the resulting field values to reload report data `Report.loadData()`
+ 
+#####Directives
+######TextInputGroup
+
+Filter by ... and by ... 
+
+######SelectGroup
+
+Order by ... and by ...
+
+####ChartOptions directive
+
+Keeps various chart types configuration metadata and renders chart parameters form for selected chart type.
+Logic is similar to live examples of [`angular-nvd3`](http://krispo.github.io/angular-nvd3/#/cumulativeLineChart) 
+(see the configuration json on the right)
+
+###Data presentation
+####Chart
+Use [`angular-nvd3` package](http://krispo.github.io/angular-nvd3) to render charts
+####Grid
+Use ui-grid to render grid with raw data
+	
+Switch the views via ng-if directive and boolean parameter `viewRaw`
+	 
