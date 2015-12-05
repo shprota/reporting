@@ -102,7 +102,7 @@ Get specified report meta by report ID.
         },{
             value: "cnt",
             title: "Count",
-            live: true
+            live: true // Can be used for live data source?
         }],
         default: null
     },{
@@ -113,7 +113,7 @@ Get specified report meta by report ID.
 		options: [{ // Each aggregation choice has chart(s) configuration
             value: "name",
             title: "Category name",
-            live: true,
+            live: true, // Can be used for live data source
             charts: [{
                 type: "bar",
                 series: {
@@ -130,7 +130,7 @@ Get specified report meta by report ID.
         },{
             value: "day",
             title: "Change day",
-            live: false,
+            live: false, // Not available for live data source
             charts: [{
                 type: "line",
                 title: "Line chart",
