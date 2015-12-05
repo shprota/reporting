@@ -1,5 +1,7 @@
 #Reporting UI
 
+
+
 ##Data interaction diagram:
 
 ![data interaction diagram](diagram1.jpg)
@@ -17,7 +19,8 @@ It would be nice to have live and historic data come from different subdomains.
 This will allow to get the live data straight from the data warehouse saving on ETLs. 
 
 `historic.reports.domain.tld` - Historic data
-`live.reports.domain.tld` - Historic data
+
+`live.reports.domain.tld` - Live data
 
 ###GET /report
 
@@ -30,7 +33,7 @@ List available reports
 | filter | string | List filter string |
 | ordering | string | List ordering column and optional order direction (`title  DESC`)|
 
-####Response
+#####Response
 
 ```JavaScript
 {
@@ -45,19 +48,19 @@ List available reports
 
 Get specified report meta by report ID.
 
-####Response
+#####Response
 
-[IReportMeta](#report-meta)
+[`IReportMeta`](#ireportmeta)
 
 ###POST /report/{id}
 
 ####POST body
 
-[IReportOptions](#report-options)
+[`IReportOptions`](#ireportoptions)
 
-####Response
+#####Response
 
-`IReportData`
+[`IReportData`](#ireportdata)
 
 
 ##Models
@@ -242,7 +245,7 @@ Loads the specified page of data, optionally filtered by searchTerm, and stores 
 | page | int | Page number to get |
 | ordering | string | List ordering column and optional order direction (`title  DESC`)|
 | searchTerm | string | Search term to filter the list by on the server |
-| `return` | Promise | Resolved to array of report items (see server-side API for GET /report/{id} for data sample) |
+| `return` | Promise | Resolved to [`IReportEntry`](#ireportentry) |
 
 #####Reports.getNext
 
@@ -282,7 +285,7 @@ Load the report raw data with provided report configuration.
 | Name | Type | Description |
 |---|---|---|
 | reportId | string | Report ID |
-| config | IReportConfig | Report-specific configuration options such as aggregations, sorting, etc. |
+| config | [IReportOptions](#ireportoptions) | Report-specific configuration options such as aggregations, sorting, etc. |
 
 
 ##Views
