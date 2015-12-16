@@ -17,8 +17,11 @@ Granting a user access to specific domain involves a two step operation when adm
 user's account encrypting it with a temporary passcode that is being passed to the user and then the user confirms the 
 join of the domain by entering her password and received passcode.
 
+Suggested encryption algorithm is AES using the [CryptoJS](https://code.google.com/p/crypto-js/) package.
+Suggested user authentication strategy is by [bearer token (RFC-6750)](http://tools.ietf.org/html/rfc6750) using [JWT](http://jwt.io/) 
+
 **Alternative approach**
-Store the domain keys centrally encrypted with domain passkey and have a user enter the passkey when she encounters an
+Store the domain keys centrally encrypted with domain passcode and have a user enter the passcode when she encounters an
 encrypted field in the ticket form.
 
 
