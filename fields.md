@@ -90,6 +90,8 @@ encrypted field in the ticket form.
 	// Password hash with username salt: 
 	// CryptoJS.PBKDF2(password, user.username, { keySize: 256/32 }).toString();
 	password: "70a38b7483a578292a525a84b0a7e85b0583b92a8b77de0988ad006a23e01f52",
+	// JWT token. Not stored in DB. Filled upon user login.
+	token: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6IjU1YzVjYjJhNDA1NTYwYj"
 	domains: [{
 		name: "finance",
 		// Encrypted with user password:
@@ -208,10 +210,28 @@ user passwords or issue temporary passcodes to every user in domain in order to 
 ##Implementation details
 
 ###Server side API
+####User
+`POST /user/login`
+
+Check user credentials and return user data including assigned domains and their keys
+
+| Name | Type | Description |
+|---|---|---|
+| username | string | Username |
+| password | string | Hashed user password |
+| `return` | [`IUser`](#iuser) | User data excluding password, including JWT token |
+
+
 ####TicketMeta
 Provides ITicketFields by ticket id, ticket category or some other properties identifying a ticket or a group of tickets.
+
+`GET /ticket/:id/meta`
+
+
 ####TicketData
-Provides tickets list and ticket details (`ITicket`)
+Provides tickets list and ticket details ([`ITicket`](#iticket))
+
+`GET /ticket/:id`
 
 ###Client side components
 
