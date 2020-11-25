@@ -25,8 +25,8 @@ Store the domain keys centrally encrypted with domain passcode and have a user e
 encrypted field in the ticket form.
 
 
-##Data modeling by example
-###ITicketFields   
+## Data modeling by example
+### ITicketFields   
   
 ```JavaScript
 [{
@@ -72,7 +72,7 @@ encrypted field in the ticket form.
 }
 ```
 
-###IDomain
+### IDomain
 
 ```JavaScript
 {
@@ -82,7 +82,7 @@ encrypted field in the ticket form.
 }
 ```
 
-###IUser
+### IUser
 
 ```JavaScript
 {
@@ -106,9 +106,9 @@ encrypted field in the ticket form.
 }
 ```
 
-##Admin Scenarios
+## Admin Scenarios
 
-###Creating the first admin user
+### Creating the first admin user
 
 When the server DB does not contain any users and domains, new admin user will be created upon the first system access.
 The following steps will be executed on the client in case no users/domains were defined yet:
@@ -122,16 +122,16 @@ The following steps will be executed on the client in case no users/domains were
 7. The server should validate that no users/domains exist to accept the first user creation request.
 
 
-###Creating a new domain
+### Creating a new domain
 
 1. Obtain new domain name
 2. Generate new domain key
 3. Encrypt the new domain key with `admin` domain key
 4. Store new domain in backend
 
-###Assigning a user to a specific domain
+### Assigning a user to a specific domain
 
-####Admin part
+#### Admin part
 1. Generate temporary passcode
 2. Decrypt `admin` domain key with admin user password
 3. Decrypt target domain with the `admin` domain key
@@ -139,7 +139,7 @@ The following steps will be executed on the client in case no users/domains were
 5. Store assigned domain to user record
 6. Send temporary passcode notification to the user
 
-####User part
+#### User part
 1. Receive a temporary passcode notification from admin
 2. Decrypt assigned domain key with the passcode
 3. Encrypt assigned domain key with user's password
@@ -147,9 +147,9 @@ The following steps will be executed on the client in case no users/domains were
 5. Throw away the passcode :)
 
 
-##User scenarios
+## User scenarios
 
-###Login
+### Login
 
 1. Submit username and password
 2. Create password hash and verify against backend
@@ -158,19 +158,19 @@ The following steps will be executed on the client in case no users/domains were
 5. Cache bearer key and decrypted domain keys in sessionStorage or cookie with httpOnly option or even just cache in an angular service 
 but that would require entering password upon any page refresh. Need to evaluate the real risks here.
 
-###Logout
+### Logout
 
 1. Clean the bearer key and domain keys from cache
 2. Invalidate views
 
-###Change password
+### Change password
 
 1. Submit new password
 2. Encrypt cached domain keys with new password
 3. Create new password hash
 4. Submit new password hash and newly encrypted domain key to the server
 
-###Get ticket information
+### Get ticket information
 
 1. Request ticket fields list from server (should cache that)
 2. *Server Side* filter ticket fields by user domain - return only public fields and fields accessible to given domain
@@ -193,13 +193,13 @@ but that would require entering password upon any page refresh. Need to evaluate
 2. Render ticket form using specially crafted directive to hide contents of encrypted fields
 3. Upon user encountering an encrypted field ask the user for field's domain passcode and show decrypted field contents
 
-###Save ticket
+### Save ticket
 
 1. Encrypt non-public ticket fields with appropriate domain keys
 2. Submit ticket fields to the server
 
 
-##Potential problems and vulnerabilities
+## Potential problems and vulnerabilities
 
 1. Caching decrypted domain key is a potential vulnerability. Not caching the key will lead to poor UX as 
 the user will be required to enter her password on every occasion.
@@ -207,10 +207,10 @@ the user will be required to enter her password on every occasion.
 user passwords or issue temporary passcodes to every user in domain in order to change the domain key system-wide.
 
 
-##Implementation details
+## Implementation details
 
-###Server side API
-####User
+### Server side API
+#### User
 `POST /user/login`
 
 Check user credentials and return user data including assigned domains and their keys
@@ -222,21 +222,21 @@ Check user credentials and return user data including assigned domains and their
 | `return` | [`IUser`](#iuser) | User data excluding password, including JWT token |
 
 
-####TicketMeta
+#### TicketMeta
 Provides ITicketFields by ticket id, ticket category or some other properties identifying a ticket or a group of tickets.
 
 `GET /ticket/:id/meta`
 
 
-####TicketData
+#### TicketData
 Provides tickets list and ticket details ([`ITicket`](#iticket))
 
 `GET /ticket/:id`
 
-###Client side components
+### Client side components
 
-####AuthenticationService
-#####Login
+#### AuthenticationService
+##### Login
 `AuthenticationService.login(username, password) : Promise(IUser)`
 
 Authenticate user by username/password pair and cache credentials and domain encryption key
@@ -247,13 +247,13 @@ Authenticate user by username/password pair and cache credentials and domain enc
 | password | string | Plain text user password |
 | `return` | Promise | Resolved to [`IUser`](#iuser) sans-password |
 
-#####Logout
+##### Logout
 
 `AuthenticationService.logout()`
 
 Clear user data and credentials/keys from the cache
 
-#####Encrypt
+##### Encrypt
 
 `AuthenticationService.encrypt(data, domain)`
 
@@ -267,7 +267,7 @@ throw `notLoggedIn` exception, broadcast `login` event, pop up a login dialog, e
 | domain | string | Domain to encrypt the data for |
 | `return` | string | Data encrypted with user's domain key |
 
-#####Decrypt
+##### Decrypt
 
 `AuthenticationService.decrypt(data, domain)`
 
