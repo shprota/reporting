@@ -1,5 +1,5 @@
-#Field level encryption design
-##Abstract
+# Field level encryption design
+## Abstract
 Service Anywhere (SAW) is a ticketing system, such that each ticket display includes a form with multiple fields 
 like description, priority, etc. Administrators will be able to define encryption domains (domain for HR, domain for finance, etc.) 
 and associate users to these domains. Upon association, they also create a passcode to these users. Then, the 
